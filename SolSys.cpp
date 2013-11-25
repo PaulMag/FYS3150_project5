@@ -13,13 +13,15 @@ using namespace arma;
 
 SolSys:: SolSys() {
     N = 0;   // number of celestial bodies
+    G = 1.56116123633e-13; // [M_sun * year^2 / ly^3]
     dim = 2; // default dimensionality
 }
 
 SolSys:: SolSys(int d) {
     N = 0;   // number of celestial bodies
+    G = 1.56116123633e-13; // [M_sun * year^2 / ly^3]
     dim = d; // should be 2 or 3
-    if (dim > 2 or 3 < dim) {
+    if (dim > 3 or dim < 2) {
         cout << "Warning: Dimensionality should be either 2 or 3." << endl;
     }
 }
@@ -175,7 +177,7 @@ mat SolSys:: findAccels() {
     for (int i=0; i<N; i++) {
         a.row(i) /= bodies[i].mass;
     }
-    a *= 0.00011854924136738324; // multiply with earthM scaled gravity constant
+    a *= G;
     return a;
 }
 
@@ -263,7 +265,7 @@ void SolSys:: moveSystem(double time, int stepN, string location) {
              * rungeKutta4(h);
              * leapFrog(h);
              */
-            leapFrog4(h);
+            leapFrog(h);
             for (int i=0; i<N; i++) {
                 bodies[i].writeData();
             }
