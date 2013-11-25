@@ -56,6 +56,7 @@ public:
 
     void rungeKutta4();
     void rungeKutta4(double h);
+    void leapFrog   (double h);
 
     void moveSystem(double, int,    string);
     void moveSystem(double, double, string);
