@@ -222,6 +222,15 @@ void SolSys:: rungeKutta4(double h) {
     setPositions (x0 + (v0 + 2*v1 + 2*v2 + v3) * h6);
 }
 
+void SolSys:: leapFrog(double h) {
+    /* Forwards every Celestial Object in the Solar System one timestep with
+     * the leapFrog method.
+     */
+    mat v_mid =   getVelocities() + h/2 * findAccels();
+    setPositions( getPositions()  + h   * v_mid );
+    setVelocities( v_mid + h/2 * findAccels() );
+}
+
 void SolSys:: moveSystem(double time, int stepN, string location) {
     /* Solve system for a given period of time and a number of steps.
      * Write results to files in folder location unless location = "0".
@@ -232,6 +241,7 @@ void SolSys:: moveSystem(double time, int stepN, string location) {
 
     if (location.compare("0") != 0) {
         //cout << "Did you make sure data/" << location << "/ exists?" << endl;
+        // The genious script run.py made this question unnecessary. :)
         cout << "Solving and writing data..." << endl;
 
         outfile  = new ofstream(("data/" + location + "/info.dat").c_str());
@@ -248,8 +258,12 @@ void SolSys:: moveSystem(double time, int stepN, string location) {
 
         start = clock();
         for (int j=0; j<stepN; j++) {
-            /* Integration loop! With filewriting. */
-            rungeKutta4(h);
+            /* Integration loop! WITH filewriting.
+             * Choose a forward method:
+             * rungeKutta4(h);
+             * leapFrog(h);
+             */
+            leapFrog4(h);
             for (int i=0; i<N; i++) {
                 bodies[i].writeData();
             }
@@ -265,8 +279,12 @@ void SolSys:: moveSystem(double time, int stepN, string location) {
 
         start = clock();
         for (int j=0; j<stepN; j++) {
-            /* Integration loop! Without filewriting. */
-            rungeKutta4(h);
+            /* Integration loop! WITHOUT filewriting.
+             * Choose a forward method:
+             * rungeKutta4(h);
+             * leapFrog(h);
+             */
+            leapFrog(h);
         }
         finish = clock();
     }
