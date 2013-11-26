@@ -20,6 +20,8 @@ class SolSys {
 public:
     int N; // no of bodies
     int dim; // dimensionality
+    double G; // gravitational constant
+
     vector<CelObj> bodies;
 
     ofstream* outfile;
@@ -50,6 +52,11 @@ public:
 
     cube findForces();
     mat  findAccels();
+
+    double getPotentialEnergy ();
+    double getPotentialEnergy (int);
+    double getKineticEnergy   ();
+    double getKineticEnergy   (int);
 
     void makeDataFiles();
     void makeDataFiles(string);
