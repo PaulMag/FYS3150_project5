@@ -27,6 +27,9 @@ public:
 
     rowvec getForce(CelObj);
 
+    double getPotentialEnergy (CelObj);
+    double getKineticEnergy   ();
+
     void makeOutfile(string);
     void closeOutfile();
     void writeData();
