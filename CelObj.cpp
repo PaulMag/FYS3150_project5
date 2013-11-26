@@ -42,7 +42,9 @@ rowvec CelObj:: getForce(CelObj other) {
      * the gravity constant G.
      */
     rowvec r = other.position - position;
-    return mass * other.mass * r / pow(norm(r,2), 3);
+    double r_abs = norm(r,2);
+    return mass * other.mass * r / ((r_abs*r_abs + eps2) * r_abs);
+        /*   m1*m2 / (r^2 + eps^2) * r_unit   */
 }
 
 double CelObj:: getKineticEnergy() {
