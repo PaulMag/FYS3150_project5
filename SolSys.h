@@ -55,8 +55,11 @@ public:
 
     double getPotentialEnergy ();
     double getPotentialEnergy (int);
+    vec getPotentialEnergies  ();
     double getKineticEnergy   ();
     double getKineticEnergy   (int);
+    vec getKineticEnergies    ();
+    double getEquilibriumEnergy();
 
     void makeDataFiles();
     void makeDataFiles(string);

@@ -206,6 +206,25 @@ double SolSys:: getPotentialEnergy(int i) {
     return U * G;
 }
 
+vec SolSys:: getPotentialEnergies() {
+    /* Return list of the potential energies. */
+    mat U_grid = zeros<mat>(N, N);
+    vec U_list = zeros<vec>(N);
+    double u;
+
+    for (int i=0; i<N; i++) {
+        for (int j=0; j<i; j++) {
+            u = bodies[i].getPotentialEnergy(bodies[j]);
+            U_grid(i,j) = u;
+            U_grid(j,i) = u;
+        }
+    }
+    for (int j=0; j<N; j++) {
+        U_list += U_grid.col(j); // sum all forces on each CelObj
+    }
+    return U_list * G;
+}
+
 double SolSys:: getKineticEnergy() {
     /* Total kinetic energy of the system. */
     double K = 0.;
@@ -219,6 +238,30 @@ double SolSys:: getKineticEnergy() {
 double SolSys:: getKineticEnergy(int i) {
     /* Kinetid energy of a particular body. */
     return bodies[i].getKineticEnergy();
+}
+
+vec SolSys:: getKineticEnergies() {
+    /* Return list of the kinetic energies. */
+    vec K_list(N);
+
+    for (int i=0; i<N; i++) {
+        K_list(i) = bodies[i].getKineticEnergy();
+    }
+    return K_list;
+}
+
+double SolSys:: getEquilibriumEnergy() {
+    /* Total energy of the system, EXCLUDED the ejected particles. */
+    vec U_list = getPotentialEnergies();
+    vec K_list = getKineticEnergies();
+    double E = 0.;
+
+    for (int i=0; i<N; i++) {
+        if (K_list(i) > U_list(i)) { // particle is unbound, i.e. ejected
+            E += K_list(i) + U_list(i);
+        }
+    }
+    return E;
 }
 
 void SolSys:: rungeKutta4(double h) {
@@ -327,8 +370,6 @@ void SolSys:: moveSystem(double time, int stepN, string location) {
              * leapFrog(h);
              */
             leapFrog(h);
-            cout << getKineticEnergy() << " - " << getPotentialEnergy()
-                 << " - " << getKineticEnergy()+getPotentialEnergy() << endl;
         }
         finish = clock();
     }
