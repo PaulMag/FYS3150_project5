@@ -38,11 +38,23 @@ CelObj:: ~CelObj() {
 }
 
 rowvec CelObj:: getForce(CelObj other) {
-    /* Find the force that act upon this body from another CelObj, not included
+    /* Find the force that act upon this body from another CelObj, NOT included
      * the gravity constant G.
      */
     rowvec r = other.position - position;
     return mass * other.mass * r / pow(norm(r,2), 3);
+}
+
+double CelObj:: getKineticEnergy() {
+    return 0.5 * mass * pow(norm(velocity,2), 2); // 1/2 m*v^2
+}
+
+double CelObj:: getPotentialEnergy(CelObj other) {
+    /* Find the potential energy on this body from the gravitational field of
+     * another CelObj, NOT included the gravity constant G.
+     */
+    rowvec r = other.position - position;
+    return - mass * other.mass / norm(r,2);
 }
 
 void CelObj:: makeOutfile(string location) {
