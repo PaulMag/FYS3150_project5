@@ -14,3 +14,8 @@
 *.lai
 *.la
 *.a
+
+# Data files
+*.dat
+*.png
+*.eps
