@@ -66,7 +66,6 @@ void CelObj:: closeOutfile() {
 }
 
 void CelObj:: writeData() {
-    /* Currently only 2D writing is available. */
-    //*outfile << position(0) << "," << position(1) << "," << position(2) << endl;
-    *outfile << position(0) << "," << position(1) <<  endl;
+    /* Write current position to outfile. Newline added automatically.*/
+    *outfile << position;
 }
