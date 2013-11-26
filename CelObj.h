@@ -14,6 +14,7 @@ class CelObj {
 public:
     string name;
     double mass;
+    double eps2;
 
     rowvec position;
     rowvec velocity;
