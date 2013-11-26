@@ -181,6 +181,46 @@ mat SolSys:: findAccels() {
     return a;
 }
 
+double SolSys:: getPotentialEnergy() {
+    /* Total potential energy of the system. */
+    double U = 0.;
+
+    for (int i=0; i<N; i++) {
+        for (int j=0; j<i; j++) {
+            U += bodies[i].getPotentialEnergy(bodies[j]);
+        }
+    }
+    return U * G;
+}
+
+double SolSys:: getPotentialEnergy(int i) {
+    /* Potential energy of a particular body. */
+    double U = 0.;
+
+    for (int j=0; j<i; j++) {
+        U += bodies[i].getPotentialEnergy(bodies[j]);
+    }
+    for (int j=i+1; j<N; j++) {
+        U += bodies[i].getPotentialEnergy(bodies[j]);
+    }
+    return U * G;
+}
+
+double SolSys:: getKineticEnergy() {
+    /* Total kinetic energy of the system. */
+    double K = 0.;
+
+    for (int i=0; i<N; i++) {
+        K += bodies[i].getKineticEnergy();
+    }
+    return K;
+}
+
+double SolSys:: getKineticEnergy(int i) {
+    /* Kinetid energy of a particular body. */
+    return bodies[i].getKineticEnergy();
+}
+
 void SolSys:: rungeKutta4(double h) {
     /* Forwards every Celestial Object in the Solar System one timestep with
      * the RungeKutta4 method.
@@ -287,6 +327,8 @@ void SolSys:: moveSystem(double time, int stepN, string location) {
              * leapFrog(h);
              */
             leapFrog(h);
+            cout << getKineticEnergy() << " - " << getPotentialEnergy()
+                 << " - " << getKineticEnergy()+getPotentialEnergy() << endl;
         }
         finish = clock();
     }
