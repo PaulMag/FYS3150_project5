@@ -1,11 +1,15 @@
 from sys import argv
-from os import system
+from os import system,mkdir
 
 # Usage:
 # time, dt, name (determine if filewrite), "no" (optional, turns off plotting)
 
 if len(argv) >= 4: # solve and write data
-    system("mkdir data/%s" % argv[3])
+    # Check if path present
+    if not os.path.exists("data/%s" % argv[3]):
+        # If not, create dir
+        mkdir("data/%s" % argv[3])
+        
     system("./main.x %s %s %s" % (argv[1], argv[2], argv[3]))
 
     flag = 1 # default
