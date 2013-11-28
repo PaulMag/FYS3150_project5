@@ -26,16 +26,22 @@ int main(int argc, char* argv[]) {
 
     SolSys mycluster = SolSys(3);
 
-    int N = 100; // number of stars
-    double R0 = 20.;   // [l.y.] // radius of sphere
-    double mu = 10.;   // [M_sun] // avg mass
-    double stdev = 1.; // [M_sun] // standard deviation in mass
+    int N; // number of stars
+    istringstream NS(argv[1]);
+    NS >> N;
 
-    //double G_year = 1.56116123633e-13;
+    double totalMass = 100 * 10.0;
+
+    double mu = totalMass / N; // [M_sun] // avg mass
+    double stdev = mu / 10.;   // [M_sun] // standard deviation in mass
+
+
     double pi = 3.14159265359;
-    //double tau = pow( pi*pi * R0*R0*R0 / (8 * G_year * N * mu) , 0.5 );
+    double R0 = 20.;   // [l.y.] // radius of sphere
     double G_tau = pi*pi * R0*R0*R0 / (8 * N * mu);
     mycluster.G = G_tau; // [M_sun * tau_crunch^2 / (l.y)^3] = [M_sun / (l.y)^3]
+
+    mycluster.setEps(0.15);
 
     time_t seed = time(0);
     long seed1 = - 1055  - seed;
@@ -61,12 +67,12 @@ int main(int argc, char* argv[]) {
     mycluster.setTotalMomentum(); // Set v_CM = 0
     */
 
-    istringstream timeS(argv[1]);
-    istringstream hS   (argv[2]);
+    istringstream timeS(argv[2]);
+    istringstream hS   (argv[3]);
     double time, h;
     timeS >> time;
     hS    >> h;
-    string location = argv[3];
+    string location = argv[4];
 
     mycluster.moveSystem(time, h, location);
     finish = clock();
