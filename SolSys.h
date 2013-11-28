@@ -46,6 +46,8 @@ public:
     rowvec getCenterOfMass();
     void   setCenterOfMass();
 
+    void setEps(double);
+
     rowvec getTotalMomentum();
     void   setTotalMomentum(CelObj*);
     void   setTotalMomentum();

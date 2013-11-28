@@ -99,6 +99,12 @@ mat SolSys:: getVelocities() {
     return v;
 }
 
+void SolSys:: setEps(double eps) {
+    for (int i=0; i<N; i++) {
+        bodies[i].eps2 = eps*eps; // save eps^2 to save some calculations
+    }
+}
+
 rowvec SolSys:: getCenterOfMass() {
     rowvec CM        = zeros<rowvec>(dim);
     double totalMass = 0;
