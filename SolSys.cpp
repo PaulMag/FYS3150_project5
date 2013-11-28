@@ -13,12 +13,14 @@ using namespace arma;
 
 SolSys:: SolSys() {
     N = 0;   // number of celestial bodies
+    boundN = 0;
     G = 1.56116123633e-13; // [M_sun * year^2 / ly^3]
     dim = 2; // default dimensionality
 }
 
 SolSys:: SolSys(int d) {
     N = 0;   // number of celestial bodies
+    boundN = 0;
     G = 1.56116123633e-13; // [M_sun * year^2 / ly^3]
     dim = d; // should be 2 or 3
     if (dim > 3 or dim < 2) {
@@ -270,6 +272,25 @@ double SolSys:: getEquilibriumEnergy() {
     return E;
 }
 
+void SolSys:: setBoundBodies() {
+    /* Store a list of the bodies that are not currently ejected for later use.
+     */
+    for (int i=0; i<N; i++) {
+        boundBodies.erase(boundBodies.end()); // clear old list
+    }
+    boundN = 0;
+
+    vec U_list = getPotentialEnergies();
+    vec K_list = getKineticEnergies();
+
+    for (int i=0; i<N; i++) {
+        if (K_list(i) > U_list(i)) { // particle is unbound, i.e. ejected
+            boundBodies.push_back(bodies[i]);
+            boundN++;
+        }
+    }
+}
+
 void SolSys:: rungeKutta4(double h) {
     /* Forwards every Celestial Object in the Solar System one timestep with
      * the RungeKutta4 method.
@@ -376,6 +397,9 @@ void SolSys:: moveSystem(double time, int stepN, string location) {
              * leapFrog(h);
              */
             leapFrog(h);
+            // Often used energy test:
+            //cout << getPotentialEnergy() << "     " << getKineticEnergy()
+            //     << "     " << getPotentialEnergy() + getKineticEnergy() << endl;
         }
         finish = clock();
     }

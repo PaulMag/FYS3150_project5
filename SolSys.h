@@ -19,10 +19,12 @@ class SolSys {
 
 public:
     int N; // no of bodies
+    int boundN; // no of bodies that are not ejected
     int dim; // dimensionality
     double G; // gravitational constant
 
     vector<CelObj> bodies;
+    vector<CelObj> boundBodies;
 
     ofstream* outfile;
 
@@ -62,6 +64,8 @@ public:
     double getKineticEnergy   (int);
     vec getKineticEnergies    ();
     double getEquilibriumEnergy();
+
+    void setBoundBodies();
 
     void makeDataFiles();
     void makeDataFiles(string);
