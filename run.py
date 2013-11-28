@@ -1,30 +1,29 @@
 from sys import argv
 import os
 
-# Usage:
-# time, dt, name (determine if filewrite), "no" (optional, turns off plotting)
+# Arguments:
+# time, dt, name(optional, determines if filewrite) (optional plotting args)
 
-if __name__ == '__main__':
-    if len(argv) >= 4: # solve and write data
-        # Check if path present
-        if not os.path.exists("data"):
-            os.mkdir("data")
-        if not os.path.exists("data/%s" % argv[3]):
-            os.mkdir("data/%s" % argv[3])
-            
-        os.system("./main.x %s %s %s" % (argv[1], argv[2], argv[3]))
+# Solve WITHOUT writing data:
+if len(argv) <= 3:
+    os.system("./main.x %s %s 0" % (argv[1], argv[2])) # run simulation
 
-        flag = 1 # default
-        if len(argv) >= 5:
-            if argv[4] == "no":
-                flag = 0
-            elif argv[4] == "film" or argv[4] == "movie":
-                flag = 2
+# Solve and write data:
+else:
+    # Check if path present, else make path:
+    if not os.path.exists("data"):
+        os.mkdir("data")
+    if not os.path.exists("data/%s" % argv[3]):
+        os.mkdir("data/%s" % argv[3])
+        
+    os.system("./main.x %s %s %s" % (argv[1], argv[2], argv[3]))# run simulation
 
-        if flag == 1: # automatically plot results
-            os.system("python plot.py %s &" % argv[3])
-        if flag == 2: # automatically save a movie
-            os.system("python plot.py %s movie &" % argv[3])
+    # Optional plotting:
+    if len(argv) >= 5:
+        s = "python plot.py %s" % argv[3]
+        
+        for i in range(4, len(argv)): # argv[4] and up is plotting commands
+            s += " %s" % argv[i]
 
-    else: # solve without writing data
-        os.system("./main.x %s %s 0" % (argv[1], argv[2]))
+    os.system(s) # run plot.py
+
