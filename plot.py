@@ -53,8 +53,6 @@ if "2d" in argv or "2D" in argv:
         plt.plot( positions[i,::skip,0], positions[i,::skip,1] )
     #plt.legend( names, loc="best" ) # No need for label in star cluster.
 
-    plt.show()
-
 
 # 3D movement plot:
 if "3d" in argv or "3D" in argv:
@@ -70,7 +68,7 @@ if "3d" in argv or "3D" in argv:
 
     fig = plt.figure()
     fig.suptitle(folder.split("__")[0] + \
-        r", time = %g $\mathrm{\tau_{{crunch}}$, dt = %g $\mathrm{\tau_{crunch}}$" \
+        r", time = %g $\mathrm{\tau_{crunch}}$, dt = %g $\mathrm{\tau_{crunch}}$" \
         % (time, time/n))
     ax3 = fig.add_subplot(111, projection='3d')
 
@@ -158,5 +156,7 @@ if "density" in argv or "dens" in argv:
     plt.ylabel("star density [1 / l.y.$^3$]")    
     plt.bar(r_pts, r_hist, width=dr) # histogram of density
 
+
+if "2d" in argv or "2D" in argv or "density" in argv or "dens" in argv:
     plt.show()
 
