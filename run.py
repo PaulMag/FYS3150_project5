@@ -27,5 +27,5 @@ else:
         for i in range(5, len(argv)): # argv[5] and up is plotting commands
             s += " %s" % argv[i]
 
-    os.system(s) # run plot.py
+        os.system(s) # run plot.py
 
