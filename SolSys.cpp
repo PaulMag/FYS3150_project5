@@ -353,19 +353,20 @@ void SolSys:: moveSystem(double time, int stepN, string location) {
 
     if (location.compare("0") != 0) {
         //cout << "Did you make sure data/" << location << "/ exists?" << endl;
-        // The genious script run.py made this question unnecessary. :)
+            // The genious script run.py made this question unnecessary. :)
         cout << "Solving and writing data..." << endl;
 
-        outfile  = new ofstream(("data/" + location + "/info.dat").c_str());
-        *outfile << time << "," << stepN << "," << dim << endl;
-        for (int i=0; i<N; i++) {
-            *outfile << bodies[i].name << ",";
+        double snapTime = 0.02; // how long time between each snapshot
+        double snapCount = 0.0; // countdown timer
+        int snapN; // no of total snaps
+        if (h > snapTime) {
+            snapTime = h;
         }
-        *outfile << endl;
-        outfile->close();
 
         for (int i=0; i<N; i++) {
-            bodies[i].makeOutfile("data/" + location + "/obj" + SSTR(i) + ".dat");
+            /* Create 1 outfile per particle. */
+            bodies[i].makeOutfile("data/" + location +
+                                  "/obj" + SSTR(i) + ".dat");
         }
 
         start = clock();
@@ -376,15 +377,38 @@ void SolSys:: moveSystem(double time, int stepN, string location) {
              * leapFrog(h);
              */
             leapFrog(h);
-            for (int i=0; i<N; i++) {
-                bodies[i].writeData();
+
+            if (snapCount <= 0) {
+                cout << j << " of " << stepN << endl; // progress print
+                for (int i=0; i<N; i++) {
+                    bodies[i].writeData();
+                }
+                snapCount += snapTime;
+                snapN     += 1;
             }
+            snapCount -= h;
         }
         finish = clock();
+        cout << stepN << " of " << stepN << endl; // progress print finish
 
         for (int i=0; i<N; i++) {
             bodies[i].closeOutfile();
         }
+
+        // Lastly, create the info file:
+        outfile  = new ofstream(("data/" + location + "/info.dat").c_str());
+        *outfile << N     << ","
+                 << time  << ","
+                 << h     << ","
+                 << stepN << ","
+                 << dim   << ","
+                 << snapTime << ","
+                 << snapN    << endl;
+        for (int i=0; i<N; i++) {
+            *outfile << bodies[i].name << ",";
+        }
+        *outfile << endl;
+        outfile->close();
     }
     else {
         cout << "Solving WITHOUT writing data..." << endl;

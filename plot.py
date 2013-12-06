@@ -11,27 +11,20 @@ folder = argv[1]
 infile = open("data/%s/info.dat" % folder, "r")
 
 info = infile.readline().split(",")
-time, n, dim = float(info[0]), int(info[1]), int(info[2])
-# n = time steps
-dt = time / n
+# objectNo, endTime, timeStep, stepN, dimensionality, snapTime, snapN
+N, time, dt, n, dim, snapTime, snapN = \
+    int(info[0]), float(info[1]), float(info[2]), \
+    int(info[3]), int(info[4]), float(info[5]), int(info[6])
 
 names = infile.readline()[:-2].split(",") # (avoid last comma)
-N = len(names)
-# N = number of objects
-
 infile.close()
 
-# If you don't want to plot every step:
-#resolution = 0.003
-#skip = int( round( resolution / (time / n) ) )
-skip = 1
-
-positions = np.zeros((N, n, dim))
+positions = np.zeros((N, snapN, dim))
 
 for i in range(N):
     infile = open("data/%s/obj%d.dat" % (folder,i), "r")
 
-    for j in range(0, n):
+    for j in range(0, snapN):
         line = infile.readline().split() # numbers divided by spaces
         for k in range(dim):
             positions[i,j,k] = float(line[k])
@@ -44,13 +37,13 @@ if "2d" in argv or "2D" in argv:
 
     plt.figure()
     plt.title(folder.split("__")[0] + \
-        r", time = %g $\tau_{\mathrm{crunch}}$, dt = %g years" % (time, time/n))
+        r", time = %g $\tau_{\mathrm{crunch}}$, dt = %g years" % (time, dt))
     plt.axis("equal")
     plt.xlabel("x [l.y.]"); plt.ylabel("y [l.y.]")
     plt.grid('on')
 
     for i in range(N):
-        plt.plot( positions[i,::skip,0], positions[i,::skip,1] )
+        plt.plot( positions[i,:,0], positions[i,:,1] )
     #plt.legend( names, loc="best" ) # No need for label in star cluster.
 
 
@@ -84,9 +77,9 @@ if "3d" in argv or "3D" in argv:
 
     R0 = np.max(positions[:,0,:]) * 1.05
 
-    for j in range(0, n):
+    for j in range(0, snapN):
         # This moves around for some reason, not much to do about it:
-        ax3.set_title('$t = %.2f$' % (dt * j))
+        ax3.set_title('$t = %.2f$' % (snapTime * j))
 
         for i in range(N):
 
@@ -148,7 +141,8 @@ if "density" in argv or "dens" in argv:
     plt.ylabel("star count", fontsize="26")
     plt.bar(r_pts, r_hist, width=dr) # histogram of distribution
     
-    plt.plot(r_pts, distribution(r_pts))
+    plt.plot(r_pts, distribution(r_pts), "r")
+    plt.legend(["Theoretical distribution", "Counts"], loc="best")
 
     def sphere(r):
         return 4./3. * np.pi * r**3
