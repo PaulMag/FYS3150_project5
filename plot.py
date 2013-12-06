@@ -54,7 +54,7 @@ if "2d" in argv or "2D" in argv:
     #plt.legend( names, loc="best" ) # No need for label in star cluster.
 
 
-# 3D movement plot:
+### 3D movement plot: ###
 if "3d" in argv or "3D" in argv:
 
     from mpl_toolkits.mplot3d import Axes3D
@@ -67,9 +67,9 @@ if "3d" in argv or "3D" in argv:
     plt.ion()
 
     fig = plt.figure()
-    fig.suptitle(folder.split("__")[0] + \
-        r", time = %g $\mathrm{\tau_{crunch}}$, dt = %g $\mathrm{\tau_{crunch}}$" \
-        % (time, time/n))
+    fig.suptitle("$N = %d$, " % N + \
+        r" endtime = %g $\mathrm{\tau_{crunch}}$," % time + \
+        r" dt = %g $\mathrm{\tau_{crunch}}$" % dt)
     ax3 = fig.add_subplot(111, projection='3d')
 
     ax3.set_xlabel('x [l.y.]')
@@ -85,8 +85,9 @@ if "3d" in argv or "3D" in argv:
     R0 = np.max(positions[:,0,:]) * 1.05
 
     for j in range(0, n):
-        # TODO This moves around for some reason:
-        #ax3.set_title('$t = %g$' % (dt * j))
+        # This moves around for some reason, not much to do about it:
+        ax3.set_title('$t = %.2f$' % (dt * j))
+
         for i in range(N):
 
             """
@@ -112,11 +113,16 @@ if "3d" in argv or "3D" in argv:
         system("ffmpeg -f image2 -r 10 -i data/%s_temp/" % folder + \
                "img%06d.png -vcodec mpeg4 -y " + \
                "data/%s.mp4" % folder)
-        # -r is framerate
+        # -r is framerate, 10 is good if dt=0.01
         system("rm -rf data/%s_temp/" % folder) # delete tmp imgs after film making
 
 
-# Plot density distribution:
+### Plot density distribution: ###
+
+def distribution(r):
+    r0 = np.max(positions[:,0,:]) * 5 * N**(-1/3.)
+    n0 = N / 5. #/ (4./3. * np.pi * r0**3)
+    return n0 / ( 1 + (r / r0)**4 )
 
 if "density" in argv or "dens" in argv:
 
@@ -126,7 +132,7 @@ if "density" in argv or "dens" in argv:
                           + positions[i,-1,1]**2
                           + positions[i,-1,2]**2)
 
-    dr = 2. # bin size
+    dr =  2. # bin size
     r_max = np.max(r_list)
     r_n = int(r_max / dr) # number of bins
     r_pts  = np.linspace(0, (r_n) * dr, r_n+1)
@@ -136,11 +142,13 @@ if "density" in argv or "dens" in argv:
         r_hist[ int(r_list[i] / dr) ] += 1 # make a manual histogram
 
     plt.figure()
-    plt.title(folder.split("__")[0] + ", radial distribution" + \
-    r", time = %g $\mathrm{\tau_{crunch}}$" % time)
-    plt.xlabel("radial distance [l.y.]")
-    plt.ylabel("star count")    
+    plt.title("N = %d" % N + ", radial distribution" + \
+    r", time = %g $\mathrm{\tau_{crunch}}$" % time, fontsize="26")
+    plt.xlabel("radial distance $[ly]$", fontsize="26")
+    plt.ylabel("star count", fontsize="26")
     plt.bar(r_pts, r_hist, width=dr) # histogram of distribution
+    
+    plt.plot(r_pts, distribution(r_pts))
 
     def sphere(r):
         return 4./3. * np.pi * r**3
@@ -150,12 +158,11 @@ if "density" in argv or "dens" in argv:
         r_hist[i] /= sphere(r_pts[i] + dr) - sphere(r_pts[i])
 
     plt.figure()
-    plt.title(folder.split("__")[0] + ", radial density" + \
-    r", time = %g $\mathrm{\tau_{crunch}}$" % time)
-    plt.xlabel("radial distance [l.y.]")
-    plt.ylabel("star density [1 / l.y.$^3$]")    
+    plt.title("N = %d" % N + ", radial density" + \
+    r", time = %g $\mathrm{\tau_{crunch}}$" % time, fontsize="26")
+    plt.xlabel("radial distance $[ly]$", fontsize="26")
+    plt.ylabel("star density $[1 / ly^3]$", fontsize="26")
     plt.bar(r_pts, r_hist, width=dr) # histogram of density
-
 
 if "2d" in argv or "2D" in argv or "density" in argv or "dens" in argv:
     plt.show()
