@@ -31,15 +31,17 @@ for i in range(N):
 
     infile.close()
 
+R0 = 20.0 # "cheating"
+
 
 ### 2D trajectory plot: ###
 if "2d" in argv or "2D" in argv:
 
     plt.figure()
     plt.title(folder.split("__")[0] + \
-        r", time = %g $\tau_{\mathrm{crunch}}$, dt = %g years" % (time, dt))
+        r", time = %g$\ \tau_{\mathrm{crunch}}$, dt = %g years" % (time, dt))
     plt.axis("equal")
-    plt.xlabel("x [l.y.]"); plt.ylabel("y [l.y.]")
+    plt.xlabel("x [ly]"); plt.ylabel("y [ly]")
     plt.grid('on')
 
     for i in range(N):
@@ -61,13 +63,13 @@ if "3d" in argv or "3D" in argv:
 
     fig = plt.figure()
     fig.suptitle("$N = %d$, " % N + \
-        r" endtime = %g $\mathrm{\tau_{crunch}}$," % time + \
-        r" dt = %g $\mathrm{\tau_{crunch}}$" % dt)
+        r" endtime = %g$\ \mathrm{\tau_{crunch}}$," % time + \
+        r" dt = %g$\ \mathrm{\tau_{crunch}}$" % dt)
     ax3 = fig.add_subplot(111, projection='3d')
 
-    ax3.set_xlabel('x [l.y.]')
-    ax3.set_ylabel('y [l.y.]')
-    ax3.set_zlabel('z [l.y.]')
+    ax3.set_xlabel('x [ly]')
+    ax3.set_ylabel('y [ly]')
+    ax3.set_zlabel('z [ly]')
 
     dots = []
     for i in range(N):
@@ -75,7 +77,6 @@ if "3d" in argv or "3D" in argv:
         dots.append(ax3.plot([0], [0], [0],'o')[0])
         # Last index [0] because plot returns tuple with one element
 
-    R0 = np.max(positions[:,0,:]) * 1.05
 
     for j in range(0, snapN):
         # This moves around for some reason, not much to do about it:
@@ -106,15 +107,15 @@ if "3d" in argv or "3D" in argv:
         system("ffmpeg -f image2 -r 10 -i data/%s_temp/" % folder + \
                "img%06d.png -vcodec mpeg4 -y " + \
                "data/%s.mp4" % folder)
-        # -r is framerate, 10 is good if dt=0.01
+        # -r is framerate, 6 is good if snapTime=0.02
         system("rm -rf data/%s_temp/" % folder) # delete tmp imgs after film making
 
 
 ### Plot density distribution: ###
 
 def distribution(r):
-    r0 = np.max(positions[:,0,:]) * 5 * N**(-1/3.)
-    n0 = N / 5. #/ (4./3. * np.pi * r0**3)
+    r0 = R0 * 6 * N**(-1/3.)
+    n0 = N * 0.15 #/ (4./3. * np.pi * r0**3)
     return n0 / ( 1 + (r / r0)**4 )
 
 if "density" in argv or "dens" in argv:
@@ -125,24 +126,25 @@ if "density" in argv or "dens" in argv:
                           + positions[i,-1,1]**2
                           + positions[i,-1,2]**2)
 
-    dr =  2. # bin size
+    dr = 2. # bin size
     r_max = np.max(r_list)
     r_n = int(r_max / dr) # number of bins
-    r_pts  = np.linspace(0, (r_n) * dr, r_n+1)
+    r_pts = np.linspace(0, (r_n) * dr, r_n+1)
 
     r_hist = np.zeros(r_n+1)
     for i in range(N):
         r_hist[ int(r_list[i] / dr) ] += 1 # make a manual histogram
 
     plt.figure()
-    plt.title("N = %d" % N + ", radial distribution" + \
-    r", time = %g $\mathrm{\tau_{crunch}}$" % time, fontsize="26")
-    plt.xlabel("radial distance $[ly]$", fontsize="26")
+    plt.title("$N = %d$, $R_0 = %g\ \mathrm{ly}$" % (N, R0) + \
+    r", time = %g$\ \mathrm{\tau_{crunch}}$" % time, fontsize="26")
+    plt.xlabel("radial distance $[\mathrm{ly}]$", fontsize="26")
     plt.ylabel("star count", fontsize="26")
     plt.bar(r_pts, r_hist, width=dr) # histogram of distribution
     
     plt.plot(r_pts, distribution(r_pts), "r")
-    plt.legend(["Theoretical distribution", "Counts"], loc="best")
+    plt.legend(["Theoretical distribution", "Actual counts"], loc="best")
+    plt.tight_layout()
 
     def sphere(r):
         return 4./3. * np.pi * r**3
@@ -152,11 +154,14 @@ if "density" in argv or "dens" in argv:
         r_hist[i] /= sphere(r_pts[i] + dr) - sphere(r_pts[i])
 
     plt.figure()
-    plt.title("N = %d" % N + ", radial density" + \
-    r", time = %g $\mathrm{\tau_{crunch}}$" % time, fontsize="26")
-    plt.xlabel("radial distance $[ly]$", fontsize="26")
-    plt.ylabel("star density $[1 / ly^3]$", fontsize="26")
+    plt.title("$N = %d$, $R_0 = %g\ \mathrm{ly}$" % (N, R0) + \
+    r", time = %g$\ \mathrm{\tau_{crunch}}$" % time, fontsize="26")
+    plt.xlabel("radial distance $[\mathrm{ly}]$", fontsize="26")
+    plt.ylabel("star density $[1 / \mathrm{ly}^3]$", fontsize="26")
     plt.bar(r_pts, r_hist, width=dr) # histogram of density
+    
+    plt.legend(["Actual density"], loc="best")
+    plt.tight_layout()
 
 if "2d" in argv or "2D" in argv or "density" in argv or "dens" in argv:
     plt.show()
