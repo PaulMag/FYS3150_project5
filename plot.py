@@ -31,7 +31,8 @@ for i in range(N):
 
     infile.close()
 
-R0 = 20.0 # "cheating"
+R0  = 20.0 # "cheating"
+eps =  1.5
 
 
 ### 2D trajectory plot: ###
@@ -62,9 +63,11 @@ if "3d" in argv or "3D" in argv:
     plt.ion()
 
     fig = plt.figure()
-    fig.suptitle("$N = %d$, " % N + \
-        r" endtime = %g$\ \mathrm{\tau_{crunch}}$," % time + \
-        r" dt = %g$\ \mathrm{\tau_{crunch}}$" % dt)
+    fig.suptitle("$N = %d$, "        % N + \
+        r"$R_0 = %g\ \mathrm{ly}$, " % R0 + \
+        r"$T   = %g\ \mathrm{\tau_{crunch}}$, " % time + \
+        r"$\mathrm{d}t  = %g\ \mathrm{\tau_{crunch}}$, " % dt + \
+        r"$\epsilon = %g\ \mathrm{ly}$"   % eps, fontsize="16")
     ax3 = fig.add_subplot(111, projection='3d')
 
     ax3.set_xlabel('x [ly]')
@@ -93,9 +96,9 @@ if "3d" in argv or "3D" in argv:
             dots[i].set_data([positions[i,j,0]],[positions[i,j,1]])
             dots[i].set_3d_properties([positions[i,j,2]])
 
-        ax3.set_xlim([-R0, R0])
-        ax3.set_ylim([-R0, R0])
-        ax3.set_zlim([-R0, R0])
+        ax3.set_xlim([-R0*1.5, R0*1.5])
+        ax3.set_ylim([-R0*1.5, R0*1.5])
+        ax3.set_zlim([-R0*1.5, R0*1.5])
 
         plt.draw()
         if save:
@@ -114,8 +117,8 @@ if "3d" in argv or "3D" in argv:
 ### Plot density distribution: ###
 
 def distribution(r):
-    r0 = R0 * 6 * N**(-1/3.)
-    n0 = N * 0.15 #/ (4./3. * np.pi * r0**3)
+    n0 = N * 0.001
+    r0 = R0 * 2 * N**(-1/3.)
     return n0 / ( 1 + (r / r0)**4 )
 
 if "density" in argv or "dens" in argv:
@@ -126,7 +129,7 @@ if "density" in argv or "dens" in argv:
                           + positions[i,-1,1]**2
                           + positions[i,-1,2]**2)
 
-    dr = 2. # bin size
+    dr = 1.0 # bin size
     r_max = np.max(r_list)
     r_n = int(r_max / dr) # number of bins
     r_pts = np.linspace(0, (r_n) * dr, r_n+1)
@@ -135,9 +138,13 @@ if "density" in argv or "dens" in argv:
     for i in range(N):
         r_hist[ int(r_list[i] / dr) ] += 1 # make a manual histogram
 
+    """
     plt.figure()
-    plt.title("$N = %d$, $R_0 = %g\ \mathrm{ly}$" % (N, R0) + \
-    r", time = %g$\ \mathrm{\tau_{crunch}}$" % time, fontsize="26")
+    plt.title("$N = %d$, "        % N + \
+        r"$R_0 = %g\ \mathrm{ly}$, " % R0 + \
+        r"$T   = %g\ \mathrm{\tau_{crunch}}$, " % time + \
+        r"$\mathrm{d}t  = %g\ \mathrm{\tau_{crunch}}$, " % dt + \
+        r"$\epsilon = %g\ \mathrm{ly}$"   % eps, fontsize="22")
     plt.xlabel("radial distance $[\mathrm{ly}]$", fontsize="26")
     plt.ylabel("star count", fontsize="26")
     plt.bar(r_pts, r_hist, width=dr) # histogram of distribution
@@ -145,6 +152,7 @@ if "density" in argv or "dens" in argv:
     plt.plot(r_pts, distribution(r_pts), "r")
     plt.legend(["Theoretical distribution", "Actual counts"], loc="best")
     plt.tight_layout()
+    """
 
     def sphere(r):
         return 4./3. * np.pi * r**3
@@ -154,14 +162,23 @@ if "density" in argv or "dens" in argv:
         r_hist[i] /= sphere(r_pts[i] + dr) - sphere(r_pts[i])
 
     plt.figure()
-    plt.title("$N = %d$, $R_0 = %g\ \mathrm{ly}$" % (N, R0) + \
-    r", time = %g$\ \mathrm{\tau_{crunch}}$" % time, fontsize="26")
+    plt.title("$N = %d$, "        % N + \
+        r"$R_0 = %g\ \mathrm{ly}$, " % R0 + \
+        r"$T   = %g\ \mathrm{\tau_{crunch}}$, " % time + \
+        r"$\mathrm{d}t  = %g\ \mathrm{\tau_{crunch}}$, " % dt + \
+        r"$\epsilon = %g\ \mathrm{ly}$"   % eps, fontsize="22")
     plt.xlabel("radial distance $[\mathrm{ly}]$", fontsize="26")
     plt.ylabel("star density $[1 / \mathrm{ly}^3]$", fontsize="26")
-    plt.bar(r_pts, r_hist, width=dr) # histogram of density
     
-    plt.legend(["Actual density"], loc="best")
+    size = 3.0 # wich radius relatice to r_max to plot
+    plt.bar(r_pts[0:r_n/size], r_hist[0:r_n/size], width=dr) # histogram of density
+
+    plt.plot(r_pts[0:r_n/size], distribution(r_pts)[0:r_n/size], "r")
+    plt.legend(["Theoretical density", "Actual density"], loc="best")
     plt.tight_layout()
+    
+    print "Average r: ", np.average(r_list)
+    print "Stdev of r:", np.std(r_list)
 
 if "2d" in argv or "2D" in argv or "density" in argv or "dens" in argv:
     plt.show()
